@@ -1,0 +1,1 @@
+Link setup signoz :  https://signoz.io/docs/install/self-host/
