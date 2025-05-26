@@ -64,3 +64,4 @@ nunit-*.xml
 .vs/WebApplication2/v17/DocumentLayout.backup.json
 .vs/WebApplication2/v17/DocumentLayout.json
 .vs/WebApplication2/FileContentIndex/a40d8618-6b8f-4efd-a8fa-9e9c3099a28d.vsidx
+*.vsidx
