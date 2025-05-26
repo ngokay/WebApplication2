@@ -52,3 +52,15 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+.vs/WebApplication2/config/applicationhost.config
+.vs/WebApplication2/DesignTimeBuild/.dtbcache.v2
+.vs/WebApplication2/FileContentIndex/28fd0bb7-90ef-4ddf-b031-b9a1a56145f3.vsidx
+.vs/WebApplication2/FileContentIndex/4480e4ea-149f-404d-aef5-64afb60399e4.vsidx
+.vs/WebApplication2/FileContentIndex/55559e7a-fa09-4c26-a29f-1d86af6b2943.vsidx
+.vs/WebApplication2/FileContentIndex/5b697070-e942-40d6-ac6d-0bfa6fb8f715.vsidx
+.vs/WebApplication2/FileContentIndex/7b14772e-284a-467d-b8cd-45daf84d5c39.vsidx
+.vs/WebApplication2/v17/.futdcache.v2
+.vs/WebApplication2/v17/.suo
+.vs/WebApplication2/v17/DocumentLayout.backup.json
+.vs/WebApplication2/v17/DocumentLayout.json
+.vs/WebApplication2/FileContentIndex/a40d8618-6b8f-4efd-a8fa-9e9c3099a28d.vsidx
