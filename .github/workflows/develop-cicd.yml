@@ -49,7 +49,7 @@ jobs:
           tags: ngoanh93/yourapp:latest
           
   build-and-deploy:
-    runs-on: self-hosted   # 👉 dùng runner cài trên máy bạn (Docker Desktop)
+    runs-on: ubuntu-latest   # 👉 dùng runner cài trên máy bạn (Docker Desktop)
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
