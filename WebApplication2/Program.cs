@@ -32,7 +32,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Conn
 builder.Services.AddScoped<IRedisService, RedisService>();
 builder.Services.AddScoped<ITracingService, TracingService>();
 
-// test cicd 
+// test cicd 1
 
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource =>
