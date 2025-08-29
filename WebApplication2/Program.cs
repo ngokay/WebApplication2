@@ -16,6 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // config 
 var configValue = builder.Configuration.GetValue<string>("Postgress:Connection");
+var configRedis = builder.Configuration.GetValue<string>("Redis:Connection");
 
 // Add services to the container.
 
@@ -27,7 +28,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
        options.UseNpgsql(configValue));
 // add DI Redis
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:6379"));
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configRedis!));
 builder.Services.AddScoped<IRedisService, RedisService>();
 builder.Services.AddScoped<ITracingService, TracingService>();
 
