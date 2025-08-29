@@ -34,6 +34,18 @@ jobs:
       - name: Test
         run: dotnet test --no-build --verbosity normal
 
+      - name: Create Docker Hub repository if not exists
+        run: |
+          curl -X POST https://hub.docker.com/v2/repositories/ \
+          -u "ngoanh93:Ngotheanh93@" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "name": "yourapp",
+            "namespace": "ngokay93",
+            "description": "Auto-created repo from GitHub Actions",
+            "is_private": false
+          }' || true
+      
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
