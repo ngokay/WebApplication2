@@ -44,6 +44,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./Dockerfile
+          file: ./WebApplication2/Dockerfile
           push: true
           tags: yourdockerhubuser/yourapp:latest
