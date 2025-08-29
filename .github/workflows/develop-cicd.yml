@@ -47,3 +47,9 @@ jobs:
           file: ./WebApplication2/Dockerfile
           push: true
           tags: ngoanh93/yourapp:latest
+          
+      - name: Run Docker container
+        run: |
+          docker stop test-app || true
+          docker rm test-app || true
+          docker run --name test-app -p 9600:8080 -e ASPNETCORE_ENVIRONMENT="Development" -v .\appsettings.Development.json:/app/appsettings.Development.json --network=postgres_postgres yourapp:lastest
