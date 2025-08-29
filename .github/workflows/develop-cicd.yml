@@ -46,4 +46,4 @@ jobs:
           context: .
           file: ./WebApplication2/Dockerfile
           push: true
-          tags: yourdockerhubuser/yourapp:latest
+          tags: ngokay93/yourapp:latest
