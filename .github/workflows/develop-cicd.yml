@@ -52,4 +52,4 @@ jobs:
         run: |
           docker stop test-app || true
           docker rm test-app || true
-          docker run --name test-app -p 9600:8080 -e ASPNETCORE_ENVIRONMENT="Development" -v .\appsettings.Development.json:/app/appsettings.Development.json --network=postgres_postgres yourapp:latest
+          docker run --name test-app -p 9600:8080 -e ASPNETCORE_ENVIRONMENT="Development" -v .\appsettings.Development.json:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest
