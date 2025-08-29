@@ -6,6 +6,7 @@ name: CI/CD .NET + Docker
 on:
   push:
     branches:
+      - main
       - develop   # chỉ chạy khi push vào branch development
   pull_request:
     branches:
