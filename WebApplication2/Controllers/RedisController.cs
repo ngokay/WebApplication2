@@ -24,7 +24,7 @@ namespace WebApplication2.Controllers
         public async Task<IActionResult> GetKey()
         {
             var value = await _redisService.GetAsync("myKey");
-            return Ok(value ?? "not found");
+            return Ok(value ?? "Test CICD");
         }
     }
 }
