@@ -51,6 +51,11 @@ jobs:
   build-and-deploy:
     runs-on: self-hosted   # dùng runner cài trên máy bạn (Docker Desktop)
     steps:
+      - name: Set PowerShell Execution Policy
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+          
       - name: Checkout source code
         uses: actions/checkout@v4
 
