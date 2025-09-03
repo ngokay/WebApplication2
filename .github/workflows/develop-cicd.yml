@@ -67,9 +67,7 @@ jobs:
         run: |
           $TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}"
           $CHAT_ID="${{ secrets.TELEGRAM_CHAT_ID }}"
-          $MESSAGE= @"
-            ✅ CI/CD đã deploy thành công branch ${{ github.ref_name }} trên server!
-            "@
+          $MESSAGE= @"✅ CI/CD đã deploy thành công branch ${{ github.ref_name }} trên server! "@
           $Body = @{ chat_id = $CHAT_ID; text = $MESSAGE } | ConvertTo-Json -Depth 3 -Compress -Encoding UTF8
           Invoke-RestMethod -Uri "https://api.telegram.org/bot$TOKEN/sendMessage" `
             -Method Post `
