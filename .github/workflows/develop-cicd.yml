@@ -68,9 +68,10 @@ jobs:
           $TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}"
           $CHAT_ID="${{ secrets.TELEGRAM_CHAT_ID }}"
           $MESSAGE="✅ CI/CD đã deploy thành công branch ${{ github.ref_name }} trên server!"
-          $Body = @{ chat_id = $CHAT_ID; text = $MESSAGE } | ConvertTo-Json -Depth 10 -Compress
+          $Body = @{ chat_id = $CHAT_ID; text = $MESSAGE } | ConvertTo-Json
+          $utf8Body = [System.Text.Encoding]::UTF8.GetBytes($jsonBody)
           [System.Text.Encoding]::UTF8.GetBytes($Body) | Out-File -FilePath body.json -Encoding utf8
           Invoke-RestMethod -Uri "https://api.telegram.org/bot$TOKEN/sendMessage" `
             -Method Post `
             -ContentType "application/json; charset=utf-8" `
-            -InFile body.json
+            -Body $utf8Body
