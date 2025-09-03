@@ -76,8 +76,7 @@ jobs:
           $PIPELINE_URL = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           $USER_CICD = "${{ github.actor }}"
 
-          $MESSAGE = @"
-            ✅ CICD dự án $SERVICE_NAME ($env:GITHUB_REF_NAME) thành công:
+          $MESSAGE = @"✅ CICD dự án $SERVICE_NAME ($env:GITHUB_REF_NAME) thành công:
             
             Service name: $SERVICE_NAME
             Project url: $PROJECT_URL
