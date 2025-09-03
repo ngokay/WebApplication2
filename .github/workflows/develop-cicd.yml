@@ -64,12 +64,39 @@ jobs:
       
       - name: Notify Telegram
         if: always()   # luôn gửi thông báo (kể cả fail)
+        shell: pwsh
         run: |
-          $TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}"
-          $CHAT_ID="${{ secrets.TELEGRAM_CHAT_ID }}"
-          $MESSAGE= @"✅ CI/CD đã deploy thành công branch ${{ github.ref_name }} trên server! "@
-          $Body = @{ chat_id = $CHAT_ID; text = $MESSAGE } | ConvertTo-Json -Depth 3 -Compress -Encoding UTF8
+          $TOKEN = "${{ secrets.TELEGRAM_BOT_TOKEN }}"
+          $CHAT_ID = "${{ secrets.TELEGRAM_CHAT_ID }}"
+
+          $SERVICE_NAME = "yourapp"   # thay bằng tên service thật
+          $PROJECT_URL = "https://github.com/${{ github.repository }}.git"
+          $USER_COMMIT = git log -1 --pretty=format:'%an <%ae>'
+          $COMMIT_TITLE = git log -1 --pretty=%s
+          $COMMIT_SHA = git rev-parse HEAD
+          $PIPELINE_URL = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          $USER_CICD = "${{ github.actor }}"
+
+          $MESSAGE = @"
+✅ CICD dự án $SERVICE_NAME ($env:GITHUB_REF_NAME) thành công:
+
+Service name: $SERVICE_NAME
+Project url: $PROJECT_URL
+User commit: $USER_COMMIT
+Commit title: $COMMIT_TITLE
+Commit SHA: $COMMIT_SHA
+
+Pipeline url: $PIPELINE_URL
+User CICD: $USER_CICD
+"@
+
+          $Body = @{
+            chat_id = $CHAT_ID
+            text    = $MESSAGE
+          } | ConvertTo-Json -Depth 3 -Compress -Encoding UTF8
+
           Invoke-RestMethod -Uri "https://api.telegram.org/bot$TOKEN/sendMessage" `
             -Method Post `
             -ContentType "application/json; charset=utf-8" `
             -Body $Body
+
