@@ -62,8 +62,8 @@ jobs:
       - name: Run new container
         run: docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT="Development" -v ${{ github.workspace }}\WebApplication2\appsettings.Development.json:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest
       
-      - name: Notify Telegram
-        if: always()   # luôn gửi thông báo (kể cả fail)
+      - name: Notify Telegram (success)
+        if: success()   # luôn gửi thông báo (kể cả fail)
         run: |
           $TOKEN = "${{ secrets.TELEGRAM_BOT_TOKEN }}"
           $CHAT_ID = "${{ secrets.TELEGRAM_CHAT_ID }}"
@@ -97,4 +97,51 @@ jobs:
             -Method Post `
             -ContentType "application/json; charset=utf-8" `
             -Body $Utf8Body
+            
+      - name: Notify Telegram (failure)
+        if: failure()   # luôn gửi thông báo (kể cả fail)
+        run: |
+          $TOKEN = "${{ secrets.TELEGRAM_BOT_TOKEN }}"
+          $CHAT_ID = "${{ secrets.TELEGRAM_CHAT_ID }}"
+
+          $SERVICE_NAME = "yourapp"   # thay bằng tên service thật
+          $PROJECT_URL = "https://github.com/${{ github.repository }}.git"
+          $USER_COMMIT = git log -1 --pretty=format:'%an <%ae>'
+          $COMMIT_TITLE = git log -1 --pretty=%s
+          $COMMIT_SHA = git rev-parse HEAD
+          $PIPELINE_URL = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          $USER_CICD = "${{ github.actor }}"
+          
+          # Lấy log lỗi (20 dòng cuối)
+          $LogFile = "error_log.txt"
+          Get-Content $env:GITHUB_STEP_SUMMARY -Tail 50 | Out-File -FilePath $LogFile
+          
+          $MESSAGE = @"
+          ❌ CICD dự án $SERVICE_NAME ($env:GITHUB_REF_NAME) thất bại:
+            
+            Service name: $SERVICE_NAME
+            Project url: $PROJECT_URL
+            User commit: $USER_COMMIT
+            Commit title: $COMMIT_TITLE
+            Commit SHA: $COMMIT_SHA
+            
+            Pipeline url: $PIPELINE_URL
+            User CICD: $USER_CICD
+          "@
+          $Body = @{
+            chat_id = $CHAT_ID
+            text    = $MESSAGE
+          } | ConvertTo-Json -Depth 3 -Compress
+          $Utf8Body = [System.Text.Encoding]::UTF8.GetBytes($Body)
+          Invoke-RestMethod -Uri "https://api.telegram.org/bot$TOKEN/sendMessage" `
+            -Method Post `
+            -ContentType "application/json; charset=utf-8" `
+            -Body $Utf8Body
+
+          # Upload file log
+          $Form = @{
+            chat_id = $CHAT_ID
+            document = Get-Item $LogFile
+          }
+          Invoke-RestMethod -Uri "https://api.telegram.org/bot$TOKEN/sendDocument" -Method Post -Form $Form
 
