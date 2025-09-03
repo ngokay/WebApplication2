@@ -70,8 +70,7 @@ jobs:
           $MESSAGE="✅ CI/CD đã deploy thành công branch ${{ github.ref_name }} trên server!"
           $Body = @{ chat_id = $CHAT_ID; text = $MESSAGE } | ConvertTo-Json
           $utf8Body = [System.Text.Encoding]::UTF8.GetBytes($Body)
-          [System.Text.Encoding]::UTF8.GetBytes($Body) | Out-File -FilePath body.json -Encoding utf8
           Invoke-RestMethod -Uri "https://api.telegram.org/bot$TOKEN/sendMessage" `
             -Method Post `
-            -ContentType "application/json; charset=utf-8" `
+            -ContentType "application/json" `
             -Body $utf8Body
