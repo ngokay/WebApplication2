@@ -86,8 +86,7 @@ jobs:
             Commit SHA: $COMMIT_SHA
             
             Pipeline url: $PIPELINE_URL
-            User CICD: $USER_CICD
-            "@
+            User CICD: $USER_CICD"@
           $Body = @{
             chat_id = $CHAT_ID
             text    = $MESSAGE
