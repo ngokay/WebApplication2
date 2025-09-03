@@ -138,10 +138,30 @@ jobs:
             -ContentType "application/json; charset=utf-8" `
             -Body $Utf8Body
 
-          # Upload file log
-          $Form = @{
-            chat_id = $CHAT_ID
+          # Gửi file log (multipart/form-data)
+          $url = "https://api.telegram.org/bot$TOKEN/sendDocument"
+          $form = @{
+            chat_id  = $CHAT_ID
             document = Get-Item $LogFile
           }
-          Invoke-RestMethod -Uri "https://api.telegram.org/bot$TOKEN/sendDocument" -Method Post -Form $Form
+          $boundary = [System.Guid]::NewGuid().ToString()
+          $LF = "`r`n"
+
+          $fileBytes = [System.IO.File]::ReadAllBytes($LogFile)
+          $enc = [System.Text.Encoding]::GetEncoding("iso-8859-1")
+          $fileContent = $enc.GetString($fileBytes)
+
+          $bodyLines = (
+            "--$boundary",
+            "Content-Disposition: form-data; name=`"chat_id`"$LF",
+            "$CHAT_ID$LF",
+            "--$boundary",
+            "Content-Disposition: form-data; name=`"document`"; filename=`"$LogFile`"",
+            "Content-Type: text/plain$LF",
+            "$fileContent$LF",
+            "--$boundary--$LF"
+          )
+
+          $body = ($bodyLines -join $LF)
+          Invoke-RestMethod -Uri $url -Method Post -ContentType "multipart/form-data; boundary=$boundary" -Body $body
 
