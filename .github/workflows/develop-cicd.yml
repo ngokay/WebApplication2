@@ -91,10 +91,10 @@ jobs:
           $Body = @{
             chat_id = $CHAT_ID
             text    = $MESSAGE
-          } | ConvertTo-Json -Depth 3 -Compress -Encoding UTF8
-
+          } | ConvertTo-Json -Depth 3 -Compress
+          $Utf8Body = [System.Text.Encoding]::UTF8.GetBytes($Body)
           Invoke-RestMethod -Uri "https://api.telegram.org/bot$TOKEN/sendMessage" `
             -Method Post `
             -ContentType "application/json; charset=utf-8" `
-            -Body $Body
+            -Body $Utf8Body
 
