@@ -61,3 +61,11 @@ jobs:
 
       - name: Run new container
         run: docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT="Development" -v ${{ github.workspace }}\WebApplication2\appsettings.Development.json:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest
+      
+      - name: Notify Telegram
+        if: always()   # luôn gửi thông báo (kể cả fail)
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            -d text="✅ Deploy thành công branch *${{ github.ref_name }}* trên runner *${{ runner.os }}*.\nImage: ngoanh93/yourapp:latest" \
+            -d parse_mode="Markdown"
