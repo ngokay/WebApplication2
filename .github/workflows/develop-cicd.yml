@@ -78,18 +78,17 @@ jobs:
           $USER_CICD = "${{ github.actor }}"
 
           $MESSAGE = @"
-✅ CICD dự án $SERVICE_NAME ($env:GITHUB_REF_NAME) thành công:
-
-Service name: $SERVICE_NAME
-Project url: $PROJECT_URL
-User commit: $USER_COMMIT
-Commit title: $COMMIT_TITLE
-Commit SHA: $COMMIT_SHA
-
-Pipeline url: $PIPELINE_URL
-User CICD: $USER_CICD
-"@
-
+            ✅ CICD dự án $SERVICE_NAME ($env:GITHUB_REF_NAME) thành công:
+            
+            Service name: $SERVICE_NAME
+            Project url: $PROJECT_URL
+            User commit: $USER_COMMIT
+            Commit title: $COMMIT_TITLE
+            Commit SHA: $COMMIT_SHA
+            
+            Pipeline url: $PIPELINE_URL
+            User CICD: $USER_CICD
+            "@
           $Body = @{
             chat_id = $CHAT_ID
             text    = $MESSAGE
