@@ -41,12 +41,12 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./WebApplication2/Dockerfile
-          push: true
-          tags: ngoanh93/yourapp:latest
+        run: |
+          docker buildx build `
+            --file ./WebApplication2/Dockerfile `
+            --tag ngoanh93/yourapp:latest `
+            --push `
+            . | Tee-Object -FilePath build_image.log -Append
           
       - name: Pull latest image
         run: docker pull ngoanh93/yourapp:latest | Tee-Object -FilePath pull_image.log -Append
