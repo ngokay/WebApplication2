@@ -26,15 +26,15 @@ jobs:
           dotnet-version: 8.0
 
       - name: Restore
-        run: dotnet restore 2>&1 | Tee-Object -FilePath restore.log
+        run: dotnet restore | Tee-Object -FilePath restore.log -Append
         continue-on-error: true
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore 2>&1 | Tee-Object -FilePath build.log
+        run: dotnet build --configuration Release --no-restore | Tee-Object -FilePath build.log -Append
         continue-on-error: true
 
       - name: Test
-        run: dotnet test --no-build --verbosity normal 2>&1 | Tee-Object -FilePath test.log
+        run: dotnet test --no-build --verbosity normal | Tee-Object -FilePath test.log -Append
         continue-on-error: true
         
       - name: Login to DockerHub
@@ -52,7 +52,7 @@ jobs:
           tags: ngoanh93/yourapp:latest
           
       - name: Pull latest image
-        run: docker pull ngoanh93/yourapp:latest 2>&1 | Tee-Object -FilePath pull_image.log
+        run: docker pull ngoanh93/yourapp:latest | Tee-Object -FilePath pull_image.log -Append
         continue-on-error: true
 
       - name: Stop old container
@@ -61,11 +61,11 @@ jobs:
               docker rm -f yourapp
           } else {
               Write-Output "Container yourapp not found, skip remove"
-          } 2>&1 | Tee-Object -FilePath stop_image.log
+          } | Tee-Object -FilePath stop_image.log -Append
         continue-on-error: true
 
       - name: Run new container
-        run: docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT="Development" -v ${{ github.workspace1 }}\WebApplication2\appsettings.Development.json:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest 2>&1 | Tee-Object -FilePath run_image.log
+        run: docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT="Development" -v ${{ github.workspace1 }}\WebApplication2\appsettings.Development.json:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest | Tee-Object -FilePath run_image.log -Append
         continue-on-error: true
       
       - name: Collect error logs
