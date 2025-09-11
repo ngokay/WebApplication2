@@ -59,7 +59,16 @@ jobs:
               Write-Output "Container yourapp not found, skip remove" | Tee-Object -FilePath stop_image.log -Append
           }
       - name: Run new container
-        run: docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT="Development" -v ${{ github.workspace1 }}\WebApplication2\appsettings.Development.json:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest | Tee-Object -FilePath run_image.log -Append
+        run: |
+          $workspace = "${{ github.workspace }}"
+          $configPath = Join-Path $workspace "WebApplication2\appsettings.Development.json"
+      
+          $cmd = "docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT=Development -v ${configPath}:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest"
+      
+          # Log cả lệnh và output
+          ">>> Running: $cmd" | Tee-Object -FilePath run_image.log -Append
+          Invoke-Expression $cmd | Tee-Object -FilePath run_image.log -Append
+          docker ps -a | Tee-Object -FilePath run_image.log -Append
       
       - name: Collect error logs
         if: failure()
