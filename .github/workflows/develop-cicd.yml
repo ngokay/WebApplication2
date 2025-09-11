@@ -62,11 +62,8 @@ jobs:
           } else {
               Write-Output "Container yourapp not found, skip remove"
           } | Tee-Object -FilePath stop_image.log -Append
-        continue-on-error: true
-
       - name: Run new container
         run: docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT="Development" -v ${{ github.workspace1 }}\WebApplication2\appsettings.Development.json:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest | Tee-Object -FilePath run_image.log -Append
-        continue-on-error: true
       
       - name: Collect error logs
         if: failure()
