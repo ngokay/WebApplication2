@@ -27,15 +27,12 @@ jobs:
 
       - name: Restore
         run: dotnet restore | Tee-Object -FilePath restore.log -Append
-        continue-on-error: true
 
       - name: Build
         run: dotnet build --configuration Release --no-restore | Tee-Object -FilePath build.log -Append
-        continue-on-error: true
-
+        
       - name: Test
         run: dotnet test --no-build --verbosity normal | Tee-Object -FilePath test.log -Append
-        continue-on-error: true
         
       - name: Login to DockerHub
         uses: docker/login-action@v2
@@ -53,7 +50,6 @@ jobs:
           
       - name: Pull latest image
         run: docker pull ngoanh93/yourapp:latest | Tee-Object -FilePath pull_image.log -Append
-        continue-on-error: true
 
       - name: Stop old container
         run: |
@@ -144,7 +140,7 @@ jobs:
           $USER_CICD = "${{ github.actor }}"
           
           # Lấy log lỗi (20 dòng cuối)
-          $LogFile = Get-Item "error_log.txt"
+          $LogFile = "error_log.txt"
           
           $MESSAGE = @"
           ❌ CICD dự án $SERVICE_NAME ($env:GITHUB_REF_NAME) thất bại:
