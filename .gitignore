@@ -65,3 +65,6 @@ nunit-*.xml
 .vs/WebApplication2/v17/DocumentLayout.json
 .vs/WebApplication2/FileContentIndex/a40d8618-6b8f-4efd-a8fa-9e9c3099a28d.vsidx
 *.vsidx
+.vs/ProjectEvaluation/webapplication2.metadata.v9.bin
+.vs/ProjectEvaluation/webapplication2.projects.v9.bin
+.vs/ProjectEvaluation/webapplication2.strings.v9.bin

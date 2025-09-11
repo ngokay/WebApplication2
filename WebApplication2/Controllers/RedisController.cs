@@ -16,7 +16,7 @@ namespace WebApplication2.Controllers
         [HttpPost("set-key")]
         public async Task<IActionResult> SetKey()
         {
-            await _redisService.SetAsync("myKey", "Hello Redis", TimeSpan.FromMinutes(10));
+            await _redisService.SetAsync("myKey", "Hello Redis cập nhật cicd", TimeSpan.FromMinutes(10));
             return Ok();
         }
 
