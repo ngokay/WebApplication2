@@ -26,15 +26,15 @@ jobs:
           dotnet-version: 8.0
 
       - name: Restore
-        run: dotnet restore | Tee-Object -FilePath restore.log
+        run: dotnet restore 2>&1 | Tee-Object -FilePath restore.log
         continue-on-error: true
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore | Tee-Object -FilePath build.log
+        run: dotnet build --configuration Release --no-restore 2>&1 | Tee-Object -FilePath build.log
         continue-on-error: true
 
       - name: Test
-        run: dotnet test --no-build --verbosity normal | Tee-Object -FilePath test.log
+        run: dotnet test --no-build --verbosity normal 2>&1 | Tee-Object -FilePath test.log
         continue-on-error: true
         
       - name: Login to DockerHub
@@ -52,7 +52,7 @@ jobs:
           tags: ngoanh93/yourapp:latest
           
       - name: Pull latest image
-        run: docker pull ngoanh93/yourapp:latest | Tee-Object -FilePath pull_image.log
+        run: docker pull ngoanh93/yourapp:latest 2>&1 | Tee-Object -FilePath pull_image.log
         continue-on-error: true
 
       - name: Stop old container
@@ -61,12 +61,11 @@ jobs:
               docker rm -f yourapp
           } else {
               Write-Output "Container yourapp not found, skip remove"
-          } | Tee-Object -FilePath stop_image.log
+          } 2>&1 | Tee-Object -FilePath stop_image.log
         continue-on-error: true
 
       - name: Run new container
-        run: docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT="Development" -v ${{ github.workspace1 }}\WebApplication2\appsettings.Development.json:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest | 
-          Tee-Object -FilePath run_image.log
+        run: docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT="Development" -v ${{ github.workspace1 }}\WebApplication2\appsettings.Development.json:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest 2>&1 | Tee-Object -FilePath run_image.log
         continue-on-error: true
       
       - name: Collect error logs
@@ -74,37 +73,27 @@ jobs:
         shell: pwsh
         run: |
           "==== ERROR SUMMARY ====" | Out-File error_log.txt -Encoding utf8
-          
-          if ((Test-Path restore.log) -and (Select-String -Path restore.log -Pattern "error")) {
-            "❌ Lỗi ở bước Restore dependencies:" | Out-File error_log.txt -Append -Encoding utf8
-            Select-String -Path restore.log -Pattern "error" | ForEach-Object { $_.Line } | Out-File error_log.txt -Append -Encoding utf8
+          $steps = @(
+            @{ Name = "Restore dependencies"; File = "restore.log" },
+            @{ Name = "Build project"; File = "build.log" },
+            @{ Name = "Test project"; File = "test.log" },
+            @{ Name = "Pull image"; File = "pull_image.log" },
+            @{ Name = "Stop old container"; File = "stop_image.log" },
+            @{ Name = "Run new container"; File = "run_image.log" }
+          )
+          foreach ($s in $steps) {
+            if ((Test-Path $s.File) -and (Select-String -Path $s.File -Pattern "error")) {
+              "❌ Lỗi ở bước $($s.Name):" | Out-File error_log.txt -Append -Encoding utf8
+              Select-String -Path $s.File -Pattern "error" | ForEach-Object { $_.Line } | Out-File error_log.txt -Append -Encoding utf8
+            }
           }
-
-          if ((Test-Path build.log) -and (Select-String -Path build.log -Pattern "error")) {
-            "❌ Lỗi ở bước Build project:" | Out-File error_log.txt -Append -Encoding utf8
-            Select-String -Path build.log -Pattern "error" | ForEach-Object { $_.Line } | Out-File error_log.txt -Append -Encoding utf8
-          }
-          
-          if ((Test-Path test.log) -and (Select-String -Path build.log -Pattern "error")) {
-            "❌ Lỗi ở bước Test project:" | Out-File error_log.txt -Append -Encoding utf8
-            Select-String -Path build.log -Pattern "error" | ForEach-Object { $_.Line } | Out-File error_log.txt -Append -Encoding utf8
-          }
-          if ((Test-Path pull_image.log) -and (Select-String -Path build.log -Pattern "error")) {
-            "❌ Lỗi ở bước pull image:" | Out-File error_log.txt -Append -Encoding utf8
-            Select-String -Path build.log -Pattern "error" | ForEach-Object { $_.Line } | Out-File error_log.txt -Append -Encoding utf8
-          }
-          if ((Test-Path stop_image.log) -and (Select-String -Path build.log -Pattern "error")) {
-            "❌ Lỗi ở bước stop image:" | Out-File error_log.txt -Append -Encoding utf8
-            Select-String -Path build.log -Pattern "error" | ForEach-Object { $_.Line } | Out-File error_log.txt -Append -Encoding utf8
-          }
-          if ((Test-Path run_image.log) -and (Select-String -Path build.log -Pattern "error")) {
-            "❌ Lỗi ở bước run image:" | Out-File error_log.txt -Append -Encoding utf8
-            Select-String -Path build.log -Pattern "error" | ForEach-Object { $_.Line } | Out-File error_log.txt -Append -Encoding utf8
-          }
-
           "========================" | Out-File error_log.txt -Append -Encoding utf8
-          Get-Content build.log -Tail 50 | Out-File error_log.txt -Append -Encoding utf8
 
+          # Thêm 50 dòng cuối từ build.log để dễ debug
+          if (Test-Path build.log) {
+            "==== Last 50 lines of build.log ====" | Out-File error_log.txt -Append -Encoding utf8
+            Get-Content build.log -Tail 50 | Out-File error_log.txt -Append -Encoding utf8
+          }
           Write-Host "===== Error log content ====="
           Get-Content error_log.txt
       
