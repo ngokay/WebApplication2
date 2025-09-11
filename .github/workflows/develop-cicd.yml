@@ -62,7 +62,15 @@ jobs:
         run: |
           $workspace = "${{ github.workspace }}"
           $configPath = Join-Path $workspace "WebApplication2\appsettings.Development.json"
-      
+
+          # 🧹 Xóa image ngoanh93/yourapp không còn dùng
+          docker images --filter "reference=ngoanh93/yourapp" --format "{{.ID}}" |
+            ForEach-Object {
+              if (-not (docker ps -a --filter "ancestor=$_ " --format "{{.ID}}")) {
+                  "Deleting unused image ID: $_" | Tee-Object -FilePath run_image.log -Append
+                  docker rmi -f $_ | Tee-Object -FilePath run_image.log -Append
+              }
+            }
           $cmd = "docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT=Development -v ${configPath}:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest"
       
           # Log cả lệnh và output
