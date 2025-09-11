@@ -60,14 +60,14 @@ jobs:
           }
       - name: Run new container
         run: |
-          $workspace = "${{ github.workspace1 }}"
-          $configPath = Join-Path $workspace "WebApplication2\appsettings.Development.json"
-      
-          $cmd = "docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT=Development -v ${configPath}:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest"
-      
-          # Log cả lệnh và output
-          ">>> Running: $cmd" | Tee-Object -FilePath run_image.log -Append
           try {
+            $workspace = "${{ github.workspace1 }}"
+            $configPath = Join-Path $workspace "WebApplication2\appsettings.Development.json"
+        
+            $cmd = "docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT=Development -v ${configPath}:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest"
+        
+            # Log cả lệnh và output
+            ">>> Running: $cmd" | Tee-Object -FilePath run_image.log -Append
             Invoke-Expression $cmd | Tee-Object -FilePath run_image.log -Append
           } catch {
             "❌ Error: $($_.Exception.Message)" | Tee-Object -FilePath run_image.log -Append
