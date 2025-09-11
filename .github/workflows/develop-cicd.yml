@@ -54,10 +54,10 @@ jobs:
       - name: Stop old container
         run: |
           if (docker ps -q -f "name=yourapp") {
-              docker rm -f yourapp
+              docker rm -f yourapp | Tee-Object -FilePath stop_image.log -Append
           } else {
-              Write-Output "Container yourapp not found, skip remove"
-          } | Tee-Object -FilePath stop_image.log -Append
+              Write-Output "Container yourapp not found, skip remove" | Tee-Object -FilePath stop_image.log -Append
+          }
       - name: Run new container
         run: docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT="Development" -v ${{ github.workspace1 }}\WebApplication2\appsettings.Development.json:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest | Tee-Object -FilePath run_image.log -Append
       
