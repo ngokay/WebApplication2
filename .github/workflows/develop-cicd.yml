@@ -60,7 +60,7 @@ jobs:
           }
       - name: Run new container
         run: |
-          $workspace = "${{ github.workspace1 }}"
+          $workspace = "${{ github.workspace }}"
           $configPath = Join-Path $workspace "WebApplication2\appsettings.Development.json"
       
           $cmd = "docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT=Development -v ${configPath}:/app/appsettings.Development1.json --network=postgres_postgres ngoanh93/yourapp:latest"
