@@ -26,13 +26,16 @@ jobs:
           dotnet-version: 8.0
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore | Tee-Object -FilePath restore.log
+        continue-on-error: true
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build --configuration Release --no-restore | Tee-Object -FilePath build.log
+        continue-on-error: true
 
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --no-build --verbosity normal | Tee-Object -FilePath test.log
+        continue-on-error: true
         
       - name: Login to DockerHub
         uses: docker/login-action@v2
@@ -49,7 +52,8 @@ jobs:
           tags: ngoanh93/yourapp:latest
           
       - name: Pull latest image
-        run: docker pull ngoanh93/yourapp:latest
+        run: docker pull ngoanh93/yourapp:latest | Tee-Object -FilePath pull_image.log
+        continue-on-error: true
 
       - name: Stop old container
         run: |
@@ -57,10 +61,52 @@ jobs:
               docker rm -f yourapp
           } else {
               Write-Output "Container yourapp not found, skip remove"
-          }
+          } | Tee-Object -FilePath stop_image.log
+        continue-on-error: true
 
       - name: Run new container
-        run: docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT="Development" -v ${{ github.workspace1 }}\WebApplication2\appsettings.Development.json:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest
+        run: docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT="Development" -v ${{ github.workspace1 }}\WebApplication2\appsettings.Development.json:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest | 
+          Tee-Object -FilePath run_image.log
+        continue-on-error: true
+      
+      - name: Collect error logs
+        if: failure()
+        shell: pwsh
+        run: |
+          "==== ERROR SUMMARY ====" | Out-File error_log.txt -Encoding utf8
+          
+          if ((Test-Path restore.log) -and (Select-String -Path restore.log -Pattern "error")) {
+            "❌ Lỗi ở bước Restore dependencies:" | Out-File error_log.txt -Append -Encoding utf8
+            Select-String -Path restore.log -Pattern "error" | ForEach-Object { $_.Line } | Out-File error_log.txt -Append -Encoding utf8
+          }
+
+          if ((Test-Path build.log) -and (Select-String -Path build.log -Pattern "error")) {
+            "❌ Lỗi ở bước Build project:" | Out-File error_log.txt -Append -Encoding utf8
+            Select-String -Path build.log -Pattern "error" | ForEach-Object { $_.Line } | Out-File error_log.txt -Append -Encoding utf8
+          }
+          
+          if ((Test-Path test.log) -and (Select-String -Path build.log -Pattern "error")) {
+            "❌ Lỗi ở bước Test project:" | Out-File error_log.txt -Append -Encoding utf8
+            Select-String -Path build.log -Pattern "error" | ForEach-Object { $_.Line } | Out-File error_log.txt -Append -Encoding utf8
+          }
+          if ((Test-Path pull_image.log) -and (Select-String -Path build.log -Pattern "error")) {
+            "❌ Lỗi ở bước pull image:" | Out-File error_log.txt -Append -Encoding utf8
+            Select-String -Path build.log -Pattern "error" | ForEach-Object { $_.Line } | Out-File error_log.txt -Append -Encoding utf8
+          }
+          if ((Test-Path stop_image.log) -and (Select-String -Path build.log -Pattern "error")) {
+            "❌ Lỗi ở bước stop image:" | Out-File error_log.txt -Append -Encoding utf8
+            Select-String -Path build.log -Pattern "error" | ForEach-Object { $_.Line } | Out-File error_log.txt -Append -Encoding utf8
+          }
+          if ((Test-Path run_image.log) -and (Select-String -Path build.log -Pattern "error")) {
+            "❌ Lỗi ở bước run image:" | Out-File error_log.txt -Append -Encoding utf8
+            Select-String -Path build.log -Pattern "error" | ForEach-Object { $_.Line } | Out-File error_log.txt -Append -Encoding utf8
+          }
+
+          "========================" | Out-File error_log.txt -Append -Encoding utf8
+          Get-Content build.log -Tail 50 | Out-File error_log.txt -Append -Encoding utf8
+
+          Write-Host "===== Error log content ====="
+          Get-Content error_log.txt
       
       - name: Notify Telegram (success)
         if: success()   # luôn gửi thông báo (kể cả fail)
@@ -113,8 +159,7 @@ jobs:
           $USER_CICD = "${{ github.actor }}"
           
           # Lấy log lỗi (20 dòng cuối)
-          $LogFile = "error_log.txt"
-          Get-Content $env:GITHUB_STEP_SUMMARY -Tail 50 | Out-File -FilePath $LogFile
+          $LogFile = Get-Item "error_log.txt"
           
           $MESSAGE = @"
           ❌ CICD dự án $SERVICE_NAME ($env:GITHUB_REF_NAME) thất bại:
