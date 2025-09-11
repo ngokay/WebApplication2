@@ -70,7 +70,6 @@ jobs:
       
       - name: Collect error logs
         if: failure()
-        shell: pwsh
         run: |
           "==== ERROR SUMMARY ====" | Out-File error_log.txt -Encoding utf8
           $steps = @(
