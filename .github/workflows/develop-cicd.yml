@@ -60,7 +60,7 @@ jobs:
           }
       - name: Run new container
         run: |
-          $workspace = "${{ github.workspace }}"
+          $workspace = "${{ github.workspace1 }}"
           $configPath = Join-Path $workspace "WebApplication2\appsettings.Development.json"
       
           $cmd = "docker run -d --name yourapp -p 9600:8080 -e ASPNETCORE_ENVIRONMENT=Development -v ${configPath}:/app/appsettings.Development.json --network=postgres_postgres ngoanh93/yourapp:latest"
@@ -78,6 +78,7 @@ jobs:
             @{ Name = "Restore dependencies"; File = "restore.log" },
             @{ Name = "Build project"; File = "build.log" },
             @{ Name = "Test project"; File = "test.log" },
+            @{ Name = "Build and Push Docker image"; File = "build_image.log" },
             @{ Name = "Pull image"; File = "pull_image.log" },
             @{ Name = "Stop old container"; File = "stop_image.log" },
             @{ Name = "Run new container"; File = "run_image.log" }
