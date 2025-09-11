@@ -67,7 +67,11 @@ jobs:
       
           # Log cả lệnh và output
           ">>> Running: $cmd" | Tee-Object -FilePath run_image.log -Append
-          Invoke-Expression $cmd | Tee-Object -FilePath run_image.log -Append
+          try {
+            Invoke-Expression $cmd | Tee-Object -FilePath run_image.log -Append
+          } catch {
+            "❌ Error: $($_.Exception.Message)" | Tee-Object -FilePath run_image.log -Append
+          }
           docker ps -a | Tee-Object -FilePath run_image.log -Append
       
       - name: Collect error logs
